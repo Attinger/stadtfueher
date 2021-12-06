@@ -1,19 +1,16 @@
 <template>
   <div id="app">
     <Home />
-    <Map />
   </div>
 </template>
 
 <script>
 import Home from './views/Home.vue'
-import Map from './views/Map.vue'
 
 export default {
   name: 'App',
   components: {
     Home,
-    Map
   }
 }
 </script>
@@ -25,6 +22,10 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+  background-color:#000;
+  height:100vh;
+  padding:0;
+  margin:0;
+  box-sizing: border-box;
 }
 </style>

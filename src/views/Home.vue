@@ -1,19 +1,32 @@
 <template>
   <div>
-    <h1>Proof of Concept:</h1>
-    <p>Projektmanagment in Softwareprojekten</p>
-    <QRCode />
+    <Header page-title="Rätsel" />
+    {{progress}}
+    <a class="test" @click="inCreamentProgress(2)">Test</a>
   </div>
 </template>
 
-<script>
+<script lang="ts">
 // @ is an alias to /src
-import QRCode from '@/components/TheQrCodeScanner.vue';
+import Header from '@/components/Header.vue';
 
 export default {
   name: 'Home',
   components: {
-    QRCode,
+    Header,
+  },
+  data: () => ({
+    test: '',
+  }),
+  computed: {
+    progress() {
+      return this.$store.getters.done;
+    },
+  },
+  methods: {
+    inCreamentProgress(payload) {
+      this.$store.dispatch('upDateProgress', payload);
+    }
   },
 };
 </script>
