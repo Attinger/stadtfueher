@@ -1,31 +1,23 @@
 <template>
-  <div id="app">
-    <Home />
-  </div>
+  <v-app>
+    <v-main>
+      <router-view/>
+    </v-main>
+  </v-app>
 </template>
 
 <script>
-import Home from './views/Home.vue'
 
 export default {
   name: 'App',
-  components: {
-    Home,
-  }
-}
+  data: () => ({
+    //
+  }),
+};
 </script>
 
 <style>
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
   background-color:#000;
-  height:100vh;
-  padding:0;
-  margin:0;
-  box-sizing: border-box;
 }
 </style>

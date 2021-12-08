@@ -2,7 +2,7 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 import VueQrcodeReader from 'vue-qrcode-reader';
 import Home from '../views/Home.vue';
-import Map from '../views/Map.vue';
+import Task from '../views/Task.vue';
 
 Vue.use(VueRouter);
 Vue.use(VueQrcodeReader);
@@ -14,9 +14,9 @@ const routes = [
         component: Home,
     },
     {
-        path: '/map',
-        name: 'Map',
-        component: Map,
+        path:'/task/:id',
+        name: 'task',
+        component: Task,
     }
 ];
 
