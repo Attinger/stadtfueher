@@ -4,8 +4,18 @@
         app
         color="primary"
         dark
+        class="flex justify-sm-space-between"
     >
-      <Header page-title="Übersicht" />
+      <v-row class="flex align-center">
+        <v-col class="no-gutters">
+          <Header page-title="Übersicht" class="left" />
+        </v-col>
+        <v-col class="text-right">
+          <router-link :to="{ name: 'map', params: tasks.locations}">
+            <v-icon class="text-right">{{ svgPath }}</v-icon>
+          </router-link>
+        </v-col>
+      </v-row>
     </v-app-bar>
     <v-card
         class="mx-auto pa-4 ma-4"
@@ -18,17 +28,36 @@
       <router-link :to="{ name: 'task', params: task}">
         <v-list-item three-line>
           <v-list-item-content>
-            <v-list-item-title class="text-h5 mb-1">
-              {{task.title }}
-            </v-list-item-title>
-            <v-list-item-subtitle>
-              {{task.title}}
-            </v-list-item-subtitle>
-            <v-list-item-action-text class="text-right" v-if="task.completed">
-              Gelöst !
-              | {{task.completedDate}} 12.12.2021<br>13:10Uhr
-            </v-list-item-action-text>
-            <v-list-item-action-text class="text-right" v-else>Noch nicht abgeschlossen</v-list-item-action-text>
+            <v-row>
+              <v-col>
+                <v-list-item-title class="text-h5 mb-1">
+                  {{task.title }}
+                </v-list-item-title>
+              </v-col>
+              <v-col>
+                <v-list-item-action-text class="text-right align-center justify-end d-flex"  v-if="hasLok">
+                  <v-icon class="ma-2">
+                    {{ distancePin }}
+                  </v-icon>
+                  <v-list-item-action-text>
+                    ~ {{task.distance}}km
+                  </v-list-item-action-text>
+                </v-list-item-action-text>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col>
+                <v-list-item-subtitle>
+                  {{task.description}}
+                </v-list-item-subtitle>
+              </v-col>
+              <v-col>
+                <v-list-item-action-text class="text-right align-center justify-end d-flex" v-if="task.completed">
+                  Abgeschlossen | {{task.completedDate}} 12.12.2021
+                </v-list-item-action-text>
+                <v-list-item-action-text class="text-right align-center justify-end d-flex" v-else>Noch nicht abgeschlossen</v-list-item-action-text>
+              </v-col>
+            </v-row>
           </v-list-item-content>
         </v-list-item>
       </router-link>
@@ -38,10 +67,18 @@
 <script lang="ts">
 // @ is an alias to /src
 import Header from '@/components/Header.vue';
+import { mdiPin } from '@mdi/js';
+import { mdiMapMarkerDistance } from '@mdi/js';
 
 export default {
   name: 'Home',
   data: () => ({
+    distancePin: mdiMapMarkerDistance,
+    svgPath: mdiPin,
+    userLong: null,
+    userLat: null,
+    hasLok: false,
+    lokBlocked: '',
   }),
   components: {
     Header,
@@ -52,13 +89,66 @@ export default {
     }
   },
   methods: {
+    async getUserLocation() {
+      //Fix: Iphone Location needs to be asked in the settings.
+      if(navigator.geolocation) {
+        await navigator.geolocation.getCurrentPosition(position => {
+          this.hasLok = true;
+          const userLong = position.coords.longitude;
+          const userLat = position.coords.latitude;
+          this.comparePosition(userLat, userLong);
+        }, error => {
+          switch(error.code) {
+            case error.PERMISSION_DENIED:
+              console.log("User denied the request for Geolocation.")
+              break;
+            case error.POSITION_UNAVAILABLE:
+              console.log("User denied the request for Geolocation.")
+              break;
+            case error.TIMEOUT:
+              console.log("User denied the request for Geolocation.")
+              break;
+            case error.UNKNOWN_ERROR:
+              console.log("User denied the request for Geolocation.")
+              break;
+          }
+        });
+      }
+    },
+    comparePosition(userLong, userLat) {
+      for(let i = 0; i < this.tasks.length; i++) {
+        const long = this.tasks[i].location.long;
+        const lat = this.tasks[i].location.lat;
+
+        let result = this.calcDistance(lat, long, userLat, userLong);
+        this.tasks[i].distance = result;
+      }
+    },
+    calcDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371; // km
+      const dLat = this.toRad(lat2-lat1);
+      const dLon = this.toRad(lon2-lon1);
+      const lat1Rad = this.toRad(lat1);
+      const lat2Rad = this.toRad(lat2);
+
+      const  a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+          Math.sin(dLon/2) * Math.sin(dLon/2) * Math.cos(lat1Rad) * Math.cos(lat2Rad);
+      const  c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      const d = R * c;
+      return d.toFixed(1);
+    },
+    // Converts numeric degrees to radians
+    toRad(Value){
+      return Value * Math.PI / 180;
+    },
   },
   mounted() {
+    this.getUserLocation();
   }
 };
 </script>
 
-<style scoped>
+<style>
 a {
   text-decoration: none;
 }
@@ -66,5 +156,4 @@ a {
 .green {
   background-color:green;
 }
-
 </style>

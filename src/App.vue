@@ -17,6 +17,7 @@ export default {
 </script>
 
 <style>
+@import '~leaflet/dist/leaflet.css';
 #app {
   background-color:#000;
 }

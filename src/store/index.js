@@ -11,14 +11,28 @@ export default new Vuex.Store({
             {
                 id: 1,
                 title: 'Erste Aufgabe',
+                description: 'Lorem Ipsum sit dorem esem X',
                 completed: true,
                 completedDate: '',
+                location: {
+                    long: 48.060523,
+                    lat: 8.194542,
+                    name: 'Erste Aufgabe',
+                },
+                distance: '',
             },
             {
                 id: 2,
                 title: 'Zweite Aufgabe',
+                description: 'Lorem Ipsum sit dorem esem X',
                 completed:false,
                 completedDate: '',
+                location: {
+                    long: 48.07052,
+                    lat: 8.194542,
+                    name:'Zweite Aufgabe',
+                },
+                distance: '',
             },
         ]
     },

@@ -1,20 +1,71 @@
 <template>
   <div>
-    <v-btn @click="loadCam">
-      Scan QR-Code
-    </v-btn>
-    <div class="qr--code" v-if="loadedcam">
-      <qrcode-stream @decode="onDecode"></qrcode-stream>
-    </div>
-    <div class="audio--area" v-if="audioFileName">
-      <div id="song">
-        <audio controls id="audio" class="hidden" :src="`https://webuser.hs-furtwangen.de/~attinger/projektMan/audio/${this.audioFileName}.mp3`" autoPlay muted></audio>
-      </div>
-    </div>
+    <v-row>
+      <v-col class="d-flex justify-center">
+        <v-btn @click="loadCam">
+          Scan QR-Code
+        </v-btn>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col v-if="loadedcam">
+        <qrcode-stream @decode="onDecode"></qrcode-stream>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col v-if="rightAudio">
+        <v-dialog
+            persistent
+            max-width="95%"
+            hide-overlay
+        >
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+                color="primary"
+                v-bind="attrs"
+                v-on="on"
+                @click="typeText"
+            >Beginne mit dem Rätsel</v-btn>
+          </template>
+          <template v-slot:default="dialog" class="task--modal">
+            <v-card>
+              <v-toolbar
+                  color="primary"
+                  dark
+                  class="d-flex justify-center"
+              >Die Aufgabe!</v-toolbar>
+              <v-card-text class="d-flex align-center flex-column">
+                <v-icon
+                    color="primary"
+                    x-large
+                    class="ma-4"
+                >{{soundIcon}}
+                </v-icon>
+                <div class="d-flex justify-center ma-4">
+                  <p>
+                    <span class="type--text">{{ typeValue }}</span>
+                    <span class="type--cursor">&nbsp;</span>
+                  </p>
+                </div>
+                <v-btn color="primary" v-if="replayButton" @click="replay">Nochmal anhören</v-btn>
+              </v-card-text>
+              <v-card-actions class="justify-end">
+                <v-btn
+                    text
+                    @click="dialog.value = false"
+                >Close</v-btn>
+              </v-card-actions>
+            </v-card>
+          </template>
+        </v-dialog>
+      </v-col>
+    </v-row>
   </div>
 </template>
 <script>
 import { QrcodeStream } from 'vue-qrcode-reader';
+import { mdiVolumeHigh } from '@mdi/js';
+import {setTimeout} from "timers";
 
 export default {
   components: {
@@ -22,16 +73,22 @@ export default {
   },
   data() {
     return {
+      soundIcon: mdiVolumeHigh,
       isLoaded: false,
       audioFileName: '',
       audioPathName: '',
-      rightAudio: false,
+      rightAudio: true,
       loadedcam: false,
+      replayButton: false,
       audioFiles: [{
         name: '',
         path: '',
-      }
-      ]
+      }],
+      typeValue: '',
+      typeArray: ['Lorem Ipsum sit dorem Status quantos extrenum sternum gettum getters yes.'],
+      typingSpeed: 50,
+      typeArrayIndex: 0,
+      charIndex: 0
     };
   },
   methods: {
@@ -50,19 +107,43 @@ export default {
       audio.muted = false;
       audio.play();
     },
+    typeText() {
+      if(this.charIndex < this.typeArray[this.typeArrayIndex].length) {
+        this.typeValue += this.typeArray[this.typeArrayIndex].charAt(this.charIndex);
+        this.charIndex += 1;
+        setTimeout(this.typeText, this.typingSpeed);
+      }
+      if(this.charIndex === this.typeArray[this.typeArrayIndex].length) {
+        //TODO: CONTINUE here with further actions. start timer for help etc.
+        console.log('done');
+        this.replayButton = true;
+      }
+    },
+    replay() {
+      this.charIndex = 0;
+      this.typeValue = '';
+      this.typeText();
+    }
   },
 };
 </script>
 
 <style>
-.qr--code {
-  max-width:500px;
-  max-height:500px;
-  border:3px solid black;
-  margin:45px auto;
+.v-dialog  {
+  overflow-x:hidden;
 }
 
-.hidden {
-  opacity:0;
+.type--cursor {
+  display: inline-block;
+  margin-left: 3px;
+  width: 1px;
+  background-color: #000;
+  animation: cursorBlink 1s infinite;
+}
+
+@keyframes cursorBlink {
+  49% { background-color: #000; }
+  50% { background-color: transparent; }
+  99% { background-color: transparent; }
 }
 </style>
