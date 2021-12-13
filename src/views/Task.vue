@@ -51,7 +51,6 @@ export default {
   mounted() {
     if(localStorage.getItem('currentTask')) {
       const getCurrentTask = JSON.parse(localStorage.getItem('currentTask'));
-      console.log(getCurrentTask);
       if(this.$route.params.id != getCurrentTask.id || getCurrentTask.id == undefined) {
         const currentTask = JSON.stringify(this.$route.params);
         localStorage.setItem('currentTask', currentTask);
