@@ -79,6 +79,7 @@ export default {
     userLat: null,
     hasLok: false,
     lokBlocked: '',
+    allChallenges: null,
   }),
   components: {
     Header,
@@ -144,6 +145,8 @@ export default {
   },
   mounted() {
     this.getUserLocation();
+    const allChallenges = JSON.stringify(this.tasks);
+    localStorage.setItem('tasks', allChallenges);
   }
 };
 </script>

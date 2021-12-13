@@ -25,13 +25,11 @@
     >
       <v-list-item three-line>
       <v-list-item-content>
-        <v-list-item-title class="text-h5 mb-1">
-          <v-card-text>Suchen Sie den QR Code in Ihrer Nähe um ihn zu Scannen.</v-card-text>
-          <v-card-text>Gefunden? Dann scannen Sie ihn nun.</v-card-text>
+        <v-list-item-title class="text-h5 text-center mb-1">
+          <v-card-text>Sucht den QR-Code in der Nähe um ihn zu scannen!</v-card-text>
+          <v-card-text>Gefunden? Dann scannt Ihn.</v-card-text>
           <the-qr-code-scanner></the-qr-code-scanner>
         </v-list-item-title>
-        <v-list-item-subtitle>
-        </v-list-item-subtitle>
       </v-list-item-content>
     </v-list-item>
     </v-card>
@@ -51,8 +49,19 @@ export default {
     task: {},
   }),
   mounted() {
-    const data = this.$route.params;
-    this.task = data;
+    if(localStorage.getItem('currentTask')) {
+      const getCurrentTask = JSON.parse(localStorage.getItem('currentTask'));
+      console.log(getCurrentTask);
+      if(this.$route.params.id != getCurrentTask.id || getCurrentTask.id == undefined) {
+        const currentTask = JSON.stringify(this.$route.params);
+        localStorage.setItem('currentTask', currentTask);
+      }
+    } else {
+      const currentTask = JSON.stringify(this.$route.params);
+      localStorage.setItem('currentTask', currentTask);
+    }
+    const actualTask = JSON.parse(localStorage.getItem('currentTask'));
+    this.task = actualTask;
   },
 }
 </script>
