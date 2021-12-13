@@ -7,13 +7,18 @@
         </v-btn>
       </v-col>
     </v-row>
-    <v-row>
-      <v-col class="qr--code" v-if="loadedcam">
+    <v-row v-if="loadedcam">
+      <v-col class=" col-12 qr--code">
         <qrcode-stream @decode="onDecode"></qrcode-stream>
+      </v-col>
+      <v-col class="col-12">
+        <v-alert type="error" v-if="error">
+          {{errorMessage }}
+        </v-alert>
       </v-col>
     </v-row>
     <v-row>
-      <v-col v-if="rightAudio">
+      <v-col> <!--v-if="rightAudio -->
         <v-dialog
             persistent
             max-width="95%"
@@ -41,9 +46,6 @@
                     class="ma-4"
                 >{{soundIcon}}
                 </v-icon>
-                <div id="song hidden">
-                  <audio controls id="audio" class="hidden" :src="`https://webuser.hs-furtwangen.de/~attinger/projektMan/audio/${this.audioFileName}.mp3`" autoPlay muted></audio>
-                </div>
                 <div class="d-flex justify-center ma-4">
                   <p>
                     <span class="type--text">{{ typeValue }}</span>
@@ -51,6 +53,9 @@
                   </p>
                 </div>
                 <v-btn color="primary" v-if="replayButton" @click="replay">Nochmal anhören</v-btn>
+               <!--  <div id="song">
+                  <audio controls id="audio" class="hidden" :src="`https://webuser.hs-furtwangen.de/~attinger/projektMan/audio/${task.audiofilename}.mp3`" autoPlay muted></audio>
+                </div> -->
               </v-card-text>
               <v-row>
                 <v-col class="col-12 ma-auto pa-5 d-flex justify-center flex-column" v-if="checkingSolution">
@@ -125,16 +130,14 @@ export default {
       question: mdiChatQuestionOutline,
       isLoaded: false,
       audioFileName: '',
+      error: false,
+      errorMessage: '',
       audioPathName: '',
-      rightAudio: true,
+      rightAudio: false,
       loadedcam: false,
       replayButton: false,
-      audioFiles: [{
-        name: '',
-        path: '',
-      }],
       typeValue: '',
-      typeArray: [],
+      typeArray: [''],
       typingSpeed: 50,
       typeArrayIndex: 0,
       charIndex: 0,
@@ -150,40 +153,37 @@ export default {
   },
   methods: {
     onDecode(decodedString) {
-      if (decodedString) {
-        this.isLoaded = true;
-        this.rightAudio = true;
-        this.audioFileName = decodedString;
+      if(localStorage.getItem('currentTask')) {
+        const actualTask = JSON.parse(localStorage.getItem('currentTask'));
+        this.task = actualTask;
+        this.typeArray.push(this.task.transskript);
+        if (this.task.audiofilename === decodedString) {
+          this.rightAudio = true;
+        } else {
+          this.error = true;
+          this.errorMessage = 'Dieser QR Code gehört nicht zu dieser Aufgabe. Überprüfe die Map um zu sehen welche Aufgabe hier erledigt werden muss.'
+        }
       }
     },
     loadCam() {
       this.loadedcam = true;
     },
-    playAudio() {
-      const audio = document.getElementById('audio');
-      audio.muted = false;
-      audio.play();
-    },
     typeText() {
-      if(localStorage.getItem('currentTask')) {
-        const actualTask = JSON.parse(localStorage.getItem('currentTask'));
-        this.task = actualTask;
-        this.typeArray.push(this.task.transskript);
-      }
-
       if(this.charIndex < this.typeArray[this.typeArrayIndex].length) {
         this.typeValue += this.typeArray[this.typeArrayIndex].charAt(this.charIndex);
         this.charIndex += 1;
         setTimeout(this.typeText, this.typingSpeed);
       }
       if(this.charIndex === this.typeArray[this.typeArrayIndex].length) {
-        //TODO: CONTINUE here with further actions. start timer for help etc.
         this.replayButton = true;
         this.setTimerForHelp();
         this.collectSolution = true;
       }
     },
     replay() {
+      const audio = document.getElementById('audio');
+      audio.currentTime = 0;
+      audio.play();
       this.charIndex = 0;
       this.typeValue = '';
       this.typeText();
@@ -204,13 +204,30 @@ export default {
           this.checkingSolution = true;
           this.wrongAnswer = false;
           this.rightAnswer = true;
-          //TODO: Set state for right answer to true. Maybe redirect to front page.
+          this.setNewState();
         } else {
           this.wrongAnswer = true;
           this.checkingSolution = true;
         }
         this.solution = '';
       }, 2000);
+    },
+    setNewState() {
+      const allTasks = JSON.parse(localStorage.getItem('tasks'));
+      const currentTask = JSON.parse(localStorage.getItem('currentTask'));
+      currentTask.completed = true;
+      for(let i = 0; i < allTasks.length; i+=1) {
+        if(allTasks[i].id === currentTask.id ) {
+          allTasks[i] = currentTask;
+        }
+      }
+      const x = JSON.stringify(allTasks);
+      localStorage.setItem('tasks', x);
+      this.changeStoreData(allTasks);
+      //TODO: Maybe redirect to front page ?.
+    },
+    changeStoreData(payload) {
+      this.$store.dispatch('task', payload);
     }
   },
   mounted() {
@@ -231,19 +248,13 @@ export default {
   animation: cursorBlink 1s infinite;
 }
 
+.hidden {
+  opacity: 0;
+}
+
 @keyframes cursorBlink {
   49% { background-color: #000; }
   50% { background-color: transparent; }
   99% { background-color: transparent; }
-}
-
-.hidden {
-  opacity: 0;
-}
-.qr--code {
-  max-width: 500px;
-  max-height: 500px;
-  border: 3px solid black;
-  margin: 45px auto;
 }
 </style>
