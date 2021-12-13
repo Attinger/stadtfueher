@@ -103,4 +103,5 @@ export default {
   top: 50%;
   transform: translate(0%, -50%);
 }
+
 </style>
