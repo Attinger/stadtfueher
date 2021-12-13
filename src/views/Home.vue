@@ -87,7 +87,7 @@ export default {
   computed: {
     tasks() {
       return this.$store.getters.tasks;
-    }
+    },
   },
   methods: {
     async getUserLocation() {
@@ -126,6 +126,7 @@ export default {
       }
     },
     calcDistance(lat1, lon1, lat2, lon2) {
+      //TODO make this code more readable
       const R = 6371; // km
       const dLat = this.toRad(lat2-lat1);
       const dLon = this.toRad(lon2-lon1);
@@ -138,13 +139,13 @@ export default {
       const d = R * c;
       return d.toFixed(1);
     },
-    // Converts numeric degrees to radians
     toRad(Value){
       return Value * Math.PI / 180;
     },
   },
   mounted() {
     this.getUserLocation();
+    //TODO: Check if localStorage already has Tasks, if YES do nothing. If not Do everything. Probably trigger an action in the  Store at this line.
     const allChallenges = JSON.stringify(this.tasks);
     localStorage.setItem('tasks', allChallenges);
   }
