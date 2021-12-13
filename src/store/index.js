@@ -12,7 +12,7 @@ export default new Vuex.Store({
                 id: 1,
                 title: 'Erste Aufgabe',
                 description: 'Das ist die erste Aufgabe.',
-                completed: true,
+                completed: false,
                 completedDate: '',
                 location: {
                     long: 48.060523,
@@ -21,7 +21,7 @@ export default new Vuex.Store({
                 },
                 distance: '',
                 solution: 'Erstes Ergebniss',
-                task: '',
+                audiofilename: 'Audiofile-one',
                 transskript: 'Das ist das Transskript der ersten  Aufgabe',
             },
             {
@@ -37,7 +37,7 @@ export default new Vuex.Store({
                 },
                 distance: '',
                 solution: 'Zweites Ergebniss',
-                task: '',
+                audiofilename: 'Audiofile-two',
                 transskript: 'Das ist das Transskript der zweiten Aufgabe',
             },
         ]
@@ -52,11 +52,17 @@ export default new Vuex.Store({
             setTimeout(function() {
                 context.commit('setNewProgress', payload);
             }, 100);
+        },
+        task: (context, payload) => {
+            context.commit('setNewStatus', payload);
         }
     },
     mutations: {
         setNewProgress: (state, payload) => {
             state.done += payload;
+        },
+        setNewStatus: (state, payload) => {
+            state.tasks = payload;
         }
     },
 });
