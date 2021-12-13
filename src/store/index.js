@@ -11,7 +11,7 @@ export default new Vuex.Store({
             {
                 id: 1,
                 title: 'Erste Aufgabe',
-                description: 'Lorem Ipsum sit dorem esem X',
+                description: 'Das ist die erste Aufgabe.',
                 completed: true,
                 completedDate: '',
                 location: {
@@ -20,11 +20,14 @@ export default new Vuex.Store({
                     name: 'Erste Aufgabe',
                 },
                 distance: '',
+                solution: 'Erstes Ergebniss',
+                task: '',
+                transskript: 'Das ist das Transskript der ersten  Aufgabe',
             },
             {
                 id: 2,
                 title: 'Zweite Aufgabe',
-                description: 'Lorem Ipsum sit dorem esem X',
+                description: 'Das ist die zweite Aufgabe.',
                 completed:false,
                 completedDate: '',
                 location: {
@@ -33,6 +36,9 @@ export default new Vuex.Store({
                     name:'Zweite Aufgabe',
                 },
                 distance: '',
+                solution: 'Zweites Ergebniss',
+                task: '',
+                transskript: 'Das ist das Transskript der zweiten Aufgabe',
             },
         ]
     },
